@@ -2,6 +2,8 @@ package life.study.lxj.controller;
 
 import life.study.lxj.dto.AccessTokenDTO;
 import life.study.lxj.dto.GithubUser;
+import life.study.lxj.mapper.UserMapper;
+import life.study.lxj.model.User;
 import life.study.lxj.provider.GithubProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.UUID;
 
 @Controller
 public class AuthorizeController {
@@ -24,6 +27,8 @@ public class AuthorizeController {
     private String clientSecret;
     @Value("${github.Redirect_uri}")
     private String Redirect_url;
+    @Autowired
+    private UserMapper userMapper;
 
     @GetMapping("/callback")
     public String callback(@RequestParam(name="code") String code,
@@ -36,10 +41,18 @@ public class AuthorizeController {
         accessTokenDTO.setClient_secret(clientSecret);
         accessTokenDTO.setStatus(state);
         String accessToken = githubProvider.getAccessToken(accessTokenDTO);
-        GithubUser user = githubProvider.getUser(accessToken);
-        if(user!=null){
+        GithubUser githubUser = githubProvider.getUser(accessToken);
+        if(githubUser!=null){
+            User user = new User();
+            user.setToken(UUID.randomUUID().toString());
+            user.setAccount_id(String.valueOf(githubUser.getId()));
+            user.setName(githubUser.getName());
+            user.setGmtcreate(System.currentTimeMillis());
+            user.setGmtmodified(user.getGmtmodified());
+            System.out.println(githubUser.getName());
+            userMapper.insert(user);
             //登陆成功，写cookie和session
-            request.getSession().setAttribute("user",user);
+            request.getSession().setAttribute("user",githubUser);
             return "redirect:/";
         }else {
             return "redirect:/";
