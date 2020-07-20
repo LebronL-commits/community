@@ -49,10 +49,11 @@ public class AuthorizeController {
             User user = new User();
             String token = UUID.randomUUID().toString();
             user.setToken(token);
-            user.setAccount_id(String.valueOf(githubUser.getId()));
+            user.setAccountid(String.valueOf(githubUser.getId()));
             user.setName(githubUser.getName());
             user.setGmtcreate(System.currentTimeMillis());
             user.setGmtmodified(user.getGmtcreate());
+            user.setAvatarurl(githubUser.getAvatarurl());
             System.out.println(githubUser.getName());
             userMapper.insert(user);
             response.addCookie(new Cookie("token",token));
