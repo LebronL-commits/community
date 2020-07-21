@@ -1,5 +1,6 @@
 package life.study.lxj.service;
 
+import life.study.lxj.dto.PageDto;
 import life.study.lxj.dto.QuestionDto;
 import life.study.lxj.mapper.QuestionMapper;
 import life.study.lxj.mapper.UserMapper;
@@ -21,8 +22,20 @@ public class QuestionService {
     @Autowired(required = false)
     private UserMapper userMapper;
 
-    public List<QuestionDto> list() {
-        List<Question> questions = questionMapper.list();
+    public PageDto list(Integer page, Integer size) {
+        Integer totalcount = questionMapper.count();
+        PageDto pageDto = new PageDto();
+        pageDto.setPagenation(totalcount, page, size);
+
+        if(page <1){
+            page = 1;
+        }
+        if(page>pageDto.getTotalPage()){
+            int x = pageDto.getTotalPage();
+            page = x;
+        }
+        Integer offset = size*(page-1);
+        List<Question> questions = questionMapper.list(offset,size);
         List<QuestionDto> questionDtoList = new ArrayList<>();
         for (Question question : questions) {
             User user = userMapper.findbyId(question.getCreator());
@@ -31,6 +44,7 @@ public class QuestionService {
             questionDto.setUser(user);
             questionDtoList.add(questionDto);
         }
-        return questionDtoList;
+        pageDto.setQuestion(questionDtoList);
+        return pageDto;
     }
 }

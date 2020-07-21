@@ -1,5 +1,6 @@
 package life.study.lxj.controller;
 
+import life.study.lxj.dto.PageDto;
 import life.study.lxj.dto.QuestionDto;
 import life.study.lxj.mapper.QuestionMapper;
 import life.study.lxj.mapper.UserMapper;
@@ -28,7 +29,9 @@ public class Indexcontroller {
 
     @GetMapping("/")
     public String index(HttpServletRequest request,
-                        Model model){
+                        Model model,
+                        @RequestParam(name = "page",defaultValue = "1") Integer page,
+                        @RequestParam(name = "size",defaultValue = "5") Integer size){
         Cookie[] cookies = request.getCookies();
         if(cookies != null && cookies.length!=0)
         for(Cookie cookie:cookies){
@@ -42,8 +45,8 @@ public class Indexcontroller {
             }
         }
 
-        List<QuestionDto> questionList = questionService.list();
-        model.addAttribute("questions",questionList);
+        PageDto pagenation = questionService.list(page,size);
+        model.addAttribute("pagenation",pagenation);
         return "index";
     }
 }
