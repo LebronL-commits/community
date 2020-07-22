@@ -25,17 +25,61 @@ public class QuestionService {
     public PageDto list(Integer page, Integer size) {
         Integer totalcount = questionMapper.count();
         PageDto pageDto = new PageDto();
-        pageDto.setPagenation(totalcount, page, size);
+
+        Integer totalPage;
+
+        if(totalcount%size == 0){
+            totalPage = totalcount / size;
+        }else{
+            totalPage = totalcount / size+1;
+        }
 
         if(page <1){
             page = 1;
         }
-        if(page>pageDto.getTotalPage()){
-            int x = pageDto.getTotalPage();
-            page = x;
+        if(page>totalPage){
+            page = totalPage;
         }
+
+        pageDto.setPagenation(totalPage, page);
+
+
         Integer offset = size*(page-1);
         List<Question> questions = questionMapper.list(offset,size);
+        List<QuestionDto> questionDtoList = new ArrayList<>();
+        for (Question question : questions) {
+            User user = userMapper.findbyId(question.getCreator());
+            QuestionDto questionDto = new QuestionDto();
+            BeanUtils.copyProperties(question,questionDto);
+            questionDto.setUser(user);
+            questionDtoList.add(questionDto);
+        }
+        pageDto.setQuestion(questionDtoList);
+        return pageDto;
+    }
+
+    public PageDto list(Integer userId, Integer page, Integer size) {
+        Integer totalcount = questionMapper.countByUserId(userId);
+        PageDto pageDto = new PageDto();
+
+        Integer totalPage;
+
+        if(totalcount%size == 0){
+            totalPage = totalcount / size;
+        }else{
+            totalPage = totalcount / size+1;
+        }
+
+        if(page <1){
+            page = 1;
+        }
+        if(page>totalPage){
+            page = totalPage;
+        }
+
+        pageDto.setPagenation(totalPage, page);
+        Integer offset = size*(page-1);
+        List<Question> questions = questionMapper.listByUserId(userId,offset,size);
         List<QuestionDto> questionDtoList = new ArrayList<>();
         for (Question question : questions) {
             User user = userMapper.findbyId(question.getCreator());
