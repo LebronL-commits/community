@@ -2,7 +2,6 @@ package life.study.lxj.controller;
 
 
 import life.study.lxj.dto.PageDto;
-import life.study.lxj.mapper.UserMapper;
 import life.study.lxj.model.User;
 import life.study.lxj.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +18,6 @@ import javax.servlet.http.HttpServletRequest;
 public class ProfileController {
 
     @Autowired(required = false)
-    private UserMapper userMapper;
-
-    @Autowired(required = false)
     private QuestionService questionService;
 
     @GetMapping("/profile/{action}")
@@ -30,20 +26,7 @@ public class ProfileController {
                           @RequestParam(name = "page",defaultValue = "1") Integer page,
                           @RequestParam(name = "size",defaultValue = "5") Integer size,
                           Model model){
-        User user = null;
-        Cookie[] cookies = request.getCookies();
-        if(cookies != null && cookies.length!=0) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("token")) {
-                    String token = cookie.getValue();
-                    user = userMapper.findbytoken(token);
-                    if (user != null) {
-                        request.getSession().setAttribute("user", user);
-                    }
-                    break;
-                }
-            }
-        }
+        User user = (User)request.getSession().getAttribute("user");
         if(user == null){
             return "redirect:/";
         }

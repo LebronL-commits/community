@@ -22,9 +22,6 @@ import java.util.List;
 public class Indexcontroller {
 
     @Autowired(required = false)
-    private UserMapper userMapper;
-
-    @Autowired(required = false)
     private QuestionService questionService;
 
     @GetMapping("/")
@@ -32,19 +29,6 @@ public class Indexcontroller {
                         Model model,
                         @RequestParam(name = "page",defaultValue = "1") Integer page,
                         @RequestParam(name = "size",defaultValue = "5") Integer size){
-        Cookie[] cookies = request.getCookies();
-        if(cookies != null && cookies.length!=0)
-        for(Cookie cookie:cookies){
-            if(cookie.getName().equals("token")){
-                String token = cookie.getValue();
-                User user = userMapper.findbytoken(token);
-                if(user != null){
-                    request.getSession().setAttribute("user",user);
-                }
-                break;
-            }
-        }
-
         PageDto pagenation = questionService.list(page,size);
         model.addAttribute("pagenation",pagenation);
         return "index";

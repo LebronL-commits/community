@@ -1,5 +1,6 @@
 package life.study.lxj.mapper;
 
+import life.study.lxj.dto.QuestionDto;
 import life.study.lxj.model.Question;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -24,4 +25,7 @@ public interface QuestionMapper {
 
     @Select("select count(1) from qusetion where creator = #{userId}")
     Integer countByUserId(@Param(value = "userId") Integer userId);
+
+    @Select("select * from qusetion where id = #{id}")
+    Question getById(@Param(value = "id") Integer id);
 }
